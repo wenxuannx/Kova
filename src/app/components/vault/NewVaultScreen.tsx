@@ -166,9 +166,7 @@ export function NewVaultScreen({ onNavigate }: { onNavigate: NavigateFn }) {
         <PrimaryButton onClick={handleLaunch} loading={launching}>Launch goal</PrimaryButton>
       </ScrollArea>
 
-      <div style={{ position: "absolute", bottom: 20, left: 16, right: 16, zIndex: 10 }}>
-        <BottomNav active="new" onNavigate={onNavigate} />
-      </div>
+      <BottomNav active="new" onNavigate={onNavigate} />
 
       {/* Success + invite code sheet */}
       <BottomSheet isOpen={successOpen} onClose={() => {}} title="">

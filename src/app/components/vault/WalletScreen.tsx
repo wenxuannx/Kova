@@ -184,9 +184,7 @@ export function WalletScreen({ onNavigate }: { onNavigate: NavigateFn }) {
         </p>
       </ScrollArea>
 
-      <div style={{ position: "absolute", bottom: 20, left: 16, right: 16, zIndex: 10 }}>
-        <BottomNav active="home" onNavigate={onNavigate} />
-      </div>
+      <BottomNav active="home" onNavigate={onNavigate} />
 
       {/* ── Withdrawal flow sheet ── */}
       <BottomSheet isOpen={withdrawOpen} onClose={withdrawStep === "processing" ? () => {} : handleClose} title="">

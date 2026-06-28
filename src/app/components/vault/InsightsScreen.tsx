@@ -214,9 +214,7 @@ export function InsightsScreen({ onNavigate }: { onNavigate: NavigateFn }) {
         <OutlineButton onClick={() => setShowAIInfo(true)}>How does the AI work?</OutlineButton>
       </ScrollArea>
 
-      <div style={{ position: "absolute", bottom: 20, left: 16, right: 16, zIndex: 10 }}>
-        <BottomNav active="insights" onNavigate={onNavigate} />
-      </div>
+      <BottomNav active="insights" onNavigate={onNavigate} />
 
       {/* Quest preview bottom sheet */}
       <BottomSheet

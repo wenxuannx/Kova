@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { Home, Target, Users, Plus, BarChart2, Bell } from "lucide-react";
+import { Home, Target, Users, Plus, BarChart2, Bell, Menu, X } from "lucide-react";
 
 // ─── Tokens ────────────────────────────────────────────────────────────────────
 export const C = {
@@ -543,72 +543,132 @@ export function DisabledTooltip({
   );
 }
 
-// ─── BottomNav ─────────────────────────────────────────────────────────────────
+// ─── BottomNav (hamburger menu on mobile) ──────────────────────────────────────
 export function BottomNav({ active, onNavigate }: { active: Screen; onNavigate: NavigateFn }) {
   const isDesktop = useIsDesktop();
+  const [open, setOpen] = useState(false);
   if (isDesktop) return null;
 
   const tabActive = active === "member-profile" ? "group" : active;
-  const items: { id: Screen; Icon: React.ElementType; label: string; badge?: boolean }[] = [
+  const items: { id: Screen; Icon: React.ElementType; label: string }[] = [
     { id: "home", Icon: Home, label: "Home" },
     { id: "quest", Icon: Target, label: "Challenges" },
     { id: "group", Icon: Users, label: "Goal Groups" },
     { id: "new", Icon: Plus, label: "New goal" },
-    { id: "notifications", Icon: Bell, label: "Notifications", badge: true },
+    { id: "notifications", Icon: Bell, label: "Notifications" },
   ];
+
   return (
-    <div
-      style={{
-        background: "white",
-        borderRadius: 50,
-        padding: "8px",
-        display: "flex",
-        boxShadow: "0px 4px 28px rgba(123,97,255,0.18)",
-        height: 64,
-      }}
-      role="navigation"
-      aria-label="Main navigation"
-    >
-      {items.map(({ id, Icon, label, badge }) => {
-        const isActive = id === tabActive;
-        return (
+    <>
+      {/* Floating hamburger button */}
+      <button
+        onClick={() => setOpen(true)}
+        aria-label="Open navigation menu"
+        style={{
+          position: "absolute",
+          top: "max(calc(env(safe-area-inset-top, 0px) + 16px), 28px)",
+          right: 20,
+          width: 40,
+          height: 40,
+          borderRadius: 12,
+          background: "white",
+          border: "none",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "0 2px 12px rgba(123,97,255,0.18)",
+          zIndex: 50,
+        }}
+      >
+        <Menu size={20} color={C.primary} strokeWidth={2} />
+      </button>
+
+      {/* Backdrop */}
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.28)",
+            zIndex: 200,
+          }}
+        />
+      )}
+
+      {/* Bottom sheet */}
+      <div
+        role="navigation"
+        aria-label="Main navigation"
+        style={{
+          position: "fixed",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "white",
+          borderRadius: "20px 20px 0 0",
+          padding: "12px 16px calc(env(safe-area-inset-bottom, 0px) + 28px)",
+          zIndex: 201,
+          boxShadow: "0 -4px 32px rgba(123,97,255,0.14)",
+          transform: open ? "translateY(0)" : "translateY(110%)",
+          transition: "transform 0.28s cubic-bezier(0.32,0.72,0,1)",
+        }}
+      >
+        {/* Drag handle */}
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: "#E5E7EB", margin: "0 auto 16px" }} />
+
+        {/* Close row */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, paddingLeft: 4 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: C.muted, letterSpacing: "0.06em", textTransform: "uppercase" }}>Navigate</span>
           <button
-            key={id}
-            onClick={() => onNavigate(id)}
-            aria-label={label}
-            aria-current={isActive ? "page" : undefined}
-            style={{
-              flex: 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "9px 0",
-              borderRadius: 50,
-              background: isActive ? C.primary : "transparent",
-              border: "none",
-              cursor: "pointer",
-              minWidth: 44,
-              minHeight: 44,
-              position: "relative",
-            }}
+            onClick={() => setOpen(false)}
+            aria-label="Close menu"
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 6 }}
           >
-            <Icon size={20} color={isActive ? "white" : C.muted} strokeWidth={isActive ? 2.2 : 1.8} />
-            {badge && !isActive && (
-              <span style={{
-                position: "absolute",
-                top: 6,
-                right: "calc(50% - 14px)",
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                background: C.danger,
-                border: "1.5px solid white",
-              }} />
-            )}
+            <X size={18} color={C.muted} />
           </button>
-        );
-      })}
-    </div>
+        </div>
+
+        {items.map(({ id, Icon, label }) => {
+          const isActive = (id as Screen) === tabActive;
+          return (
+            <button
+              key={id}
+              onClick={() => { onNavigate(id as Screen); setOpen(false); }}
+              aria-current={isActive ? "page" : undefined}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                width: "100%",
+                padding: "11px 12px",
+                borderRadius: 14,
+                background: isActive ? "rgba(123,97,255,0.08)" : "transparent",
+                border: "none",
+                cursor: "pointer",
+                marginBottom: 4,
+                textAlign: "left",
+              }}
+            >
+              <div style={{
+                width: 38, height: 38, borderRadius: 11,
+                background: isActive ? C.primary : "rgba(123,97,255,0.07)",
+                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+              }}>
+                <Icon size={18} color={isActive ? "white" : C.primary} strokeWidth={isActive ? 2.2 : 1.8} />
+              </div>
+              <span style={{
+                fontSize: 15,
+                fontWeight: isActive ? 700 : 500,
+                color: isActive ? C.primary : C.text,
+                fontFamily: "inherit",
+              }}>{label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </>
   );
 }
 

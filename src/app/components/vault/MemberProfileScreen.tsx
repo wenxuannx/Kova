@@ -349,9 +349,7 @@ export function MemberProfileScreen({
         ) : null}
       </ScrollArea>
 
-      <div style={{ position: "absolute", bottom: 20, left: 16, right: 16, zIndex: 10 }}>
-        <BottomNav active="member-profile" onNavigate={onNavigate} />
-      </div>
+      <BottomNav active="member-profile" onNavigate={onNavigate} />
     </div>
   );
 }

@@ -359,9 +359,7 @@ export function QuestDetailScreen({
       </ScrollArea>
 
       {/* Bottom nav */}
-      <div style={{ position: "absolute", bottom: 20, left: 16, right: 16, zIndex: 10 }}>
-        <BottomNav active="quest" onNavigate={onNavigate} />
-      </div>
+      <BottomNav active="quest" onNavigate={onNavigate} />
 
       {/* Confirm completion bottom sheet */}
       <BottomSheet

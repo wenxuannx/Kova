@@ -240,9 +240,8 @@ export function DashboardScreen({ onNavigate }: { onNavigate: NavigateFn }) {
         )}
 
         {/* GOAL GROUPS */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+        <div style={{ marginBottom: 10 }}>
           <p style={{ fontSize: 11, fontWeight: 500, color: C.muted, letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>My Goal Groups</p>
-          <SmallPillButton onClick={() => onNavigate("new")}>+ New</SmallPillButton>
         </div>
         <Card>
           {groups.length === 0 ? (
@@ -279,9 +278,7 @@ export function DashboardScreen({ onNavigate }: { onNavigate: NavigateFn }) {
         </Card>
       </ScrollArea>
 
-      <div style={{ position: "absolute", bottom: 20, left: 16, right: 16, zIndex: 10 }}>
-        <BottomNav active="home" onNavigate={onNavigate} />
-      </div>
+      <BottomNav active="home" onNavigate={onNavigate} />
 
       <QuestGeneratorSheet isOpen={generatorOpen} onClose={() => setGeneratorOpen(false)} />
     </div>

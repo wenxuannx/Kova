@@ -86,12 +86,9 @@ export function GroupScreen({ groupId, onNavigate }: { groupId: string; onNaviga
             </div>
           ) : (
             <>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                <div>
-                  <p style={{ fontSize: 20, fontWeight: 700, color: C.text, margin: "0 0 2px" }}>My Goal Groups</p>
-                  <p style={{ fontSize: 13, color: C.textSecondary, margin: 0 }}>{groups.length} active goal{groups.length !== 1 ? "s" : ""}</p>
-                </div>
-                <SmallPillButton onClick={() => onNavigate("new")}>+ New</SmallPillButton>
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ fontSize: 20, fontWeight: 700, color: C.text, margin: "0 0 2px" }}>My Goal Groups</p>
+                <p style={{ fontSize: 13, color: C.textSecondary, margin: 0 }}>{groups.length} active goal{groups.length !== 1 ? "s" : ""}</p>
               </div>
               <Card style={{ padding: 0, overflow: "hidden" }}>
                 {groups.map((g, i) => (
@@ -118,9 +115,7 @@ export function GroupScreen({ groupId, onNavigate }: { groupId: string; onNaviga
             </>
           )}
         </ScrollArea>
-        <div style={{ position: "absolute", bottom: 20, left: 16, right: 16, zIndex: 10 }}>
-          <BottomNav active="group" onNavigate={onNavigate} />
-        </div>
+        <BottomNav active="group" onNavigate={onNavigate} />
       </div>
     );
   }
@@ -205,9 +200,7 @@ export function GroupScreen({ groupId, onNavigate }: { groupId: string; onNaviga
         </OutlineButton>
       </ScrollArea>
 
-      <div style={{ position: "absolute", bottom: 20, left: 16, right: 16, zIndex: 10 }}>
-        <BottomNav active="group" onNavigate={onNavigate} />
-      </div>
+      <BottomNav active="group" onNavigate={onNavigate} />
 
       {/* ── Invite sheet ── */}
       <BottomSheet isOpen={inviteOpen} onClose={() => setInviteOpen(false)} title="Invite to goal group">
