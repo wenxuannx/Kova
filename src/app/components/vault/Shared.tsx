@@ -547,16 +547,20 @@ export function DisabledTooltip({
 // ─── BottomNav (hamburger menu on mobile) ──────────────────────────────────────
 export function BottomNav({ active, onNavigate }: { active: Screen; onNavigate: NavigateFn }) {
   const isDesktop = useIsDesktop();
+  const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
   if (isDesktop) return null;
 
-  const tabActive = active === "member-profile" ? "group" : active;
+  const tabActive = active === "member-profile" ? "group" : active === "profile" ? "profile" : active;
   const items: { id: Screen; Icon: React.ElementType; label: string }[] = [
     { id: "home", Icon: Home, label: "Home" },
     { id: "quest", Icon: Target, label: "Challenges" },
     { id: "group", Icon: Users, label: "Goal Groups" },
     { id: "new", Icon: Plus, label: "New goal" },
+    { id: "insights", Icon: BarChart, label: "Insights" },
+    { id: "wallet", Icon: Wallet, label: "Wallet" },
     { id: "notifications", Icon: Bell, label: "Notifications" },
+    { id: "profile", Icon: UserCircle, label: "Profile" },
   ];
 
   return (
@@ -668,6 +672,35 @@ export function BottomNav({ active, onNavigate }: { active: Screen; onNavigate: 
             </button>
           );
         })}
+
+        {/* Divider + Logout */}
+        <div style={{ height: 1, background: C.border, margin: "8px 0 4px" }} />
+        <button
+          onClick={() => { setOpen(false); logout(); }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 14,
+            width: "100%",
+            padding: "11px 12px",
+            borderRadius: 14,
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            textAlign: "left",
+          }}
+        >
+          <div style={{
+            width: 38, height: 38, borderRadius: 11,
+            background: "rgba(239,68,68,0.08)",
+            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+          }}>
+            <LogOut size={18} color={C.danger} strokeWidth={1.8} />
+          </div>
+          <span style={{ fontSize: 15, fontWeight: 500, color: C.danger, fontFamily: "inherit" }}>
+            {user?.name ? `Sign out` : "Sign out"}
+          </span>
+        </button>
       </div>
     </>
   );
