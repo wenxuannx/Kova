@@ -106,12 +106,13 @@ function BarRow({
 export function InsightsScreen({ onNavigate }: { onNavigate: NavigateFn }) {
   const [previewQuest, setPreviewQuest] = useState<QuestOption | null>(null);
   const [showAlternatives, setShowAlternatives] = useState(false);
+  const [showAIInfo, setShowAIInfo] = useState(false);
 
   const bars = [
-    { label: "Savings quests", percent: "85%", numericPct: 85, textColor: C.success, barColor: C.success },
+    { label: "Savings challenges", percent: "85%", numericPct: 85, textColor: C.success, barColor: C.success },
     { label: "Spending reduction", percent: "71%", numericPct: 71, textColor: C.primary, barColor: C.primary },
-    { label: "Investment quests", percent: "28%", numericPct: 28, textColor: C.warning, barColor: C.warning },
-    { label: "Month-end quests", percent: "17%", numericPct: 17, textColor: C.danger, barColor: C.danger },
+    { label: "Investment challenges", percent: "28%", numericPct: 28, textColor: C.warning, barColor: C.warning },
+    { label: "Month-end challenges", percent: "17%", numericPct: 17, textColor: C.danger, barColor: C.danger },
   ];
 
   return (
@@ -137,7 +138,7 @@ export function InsightsScreen({ onNavigate }: { onNavigate: NavigateFn }) {
           Your behaviour, week 7
         </p>
         <p style={{ fontSize: 13, color: C.textSecondary, margin: "0 0 24px" }}>
-          From 6 weeks of quest data
+          From 6 weeks of challenge data
         </p>
 
         {/* Completion bars */}
@@ -150,39 +151,8 @@ export function InsightsScreen({ onNavigate }: { onNavigate: NavigateFn }) {
           </div>
         </Card>
 
-        {/* Diagnosis */}
-        <SectionLabel>Diagnosis</SectionLabel>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
-          <div
-            style={{ background: "#EDE9FF", borderRadius: 20, padding: "16px", boxShadow: C.cardShadow }}
-          >
-            <p style={{ fontSize: 13, fontWeight: 700, color: C.primary, margin: "0 0 7px" }}>
-              Investment avoidance
-            </p>
-            <p style={{ fontSize: 13, color: "#5B4F9E", margin: 0, lineHeight: 1.58 }}>
-              You complete savings quests 85% of the time but skip investment ones 3× more often.
-              Not motivation — it's decision anxiety.
-            </p>
-          </div>
-          <div
-            style={{
-              background: "#FFFBEB",
-              borderRadius: 20,
-              padding: "16px",
-              boxShadow: "0px 4px 24px rgba(245,158,11,0.08)",
-            }}
-          >
-            <p style={{ fontSize: 13, fontWeight: 700, color: "#B45309", margin: "0 0 7px" }}>
-              Month-end squeeze
-            </p>
-            <p style={{ fontSize: 13, color: "#92400E", margin: 0, lineHeight: 1.58 }}>
-              You miss quests in the last week of the month. Shift your quest deadline to the 20th.
-            </p>
-          </div>
-        </div>
-
-        {/* Next quests — tappable rows */}
-        <SectionLabel>Next Quests</SectionLabel>
+        {/* Next challenges — tappable rows */}
+        <SectionLabel>Next Challenges</SectionLabel>
         <Card style={{ marginBottom: 24, padding: 0, overflow: "hidden" }}>
           {NEXT_QUESTS.map((q, i) => (
             <div key={q.id}>
@@ -191,7 +161,7 @@ export function InsightsScreen({ onNavigate }: { onNavigate: NavigateFn }) {
                   setPreviewQuest(q);
                   setShowAlternatives(false);
                 }}
-                aria-label={`Preview quest: ${q.title}`}
+                aria-label={`Preview challenge: ${q.title}`}
                 style={{ padding: "12px 16px" }}
               >
                 <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
@@ -241,7 +211,7 @@ export function InsightsScreen({ onNavigate }: { onNavigate: NavigateFn }) {
           ))}
         </Card>
 
-        <OutlineButton>How does the AI work?</OutlineButton>
+        <OutlineButton onClick={() => setShowAIInfo(true)}>How does the AI work?</OutlineButton>
       </ScrollArea>
 
       <div style={{ position: "absolute", bottom: 20, left: 16, right: 16, zIndex: 10 }}>
@@ -329,6 +299,31 @@ export function InsightsScreen({ onNavigate }: { onNavigate: NavigateFn }) {
             )}
           </>
         )}
+      </BottomSheet>
+
+      {/* How does the AI work? */}
+      <BottomSheet isOpen={showAIInfo} onClose={() => setShowAIInfo(false)} title="How the AI works">
+        <p style={{ fontSize: 14, color: C.textSecondary, margin: "0 0 20px", lineHeight: 1.65 }}>
+          Kova's challenge engine analyses your spending patterns and savings pace, then generates a
+          personalised weekly challenge — something achievable but slightly uncomfortable.
+        </p>
+        <NumberedStep
+          n={1}
+          title="Reads your profile"
+          description="The AI looks at your vault goal, current balance, and weekly streak to understand where you're at."
+        />
+        <NumberedStep
+          n={2}
+          title="Finds the friction"
+          description="It identifies one spending category where small changes have the highest impact on your goal."
+        />
+        <NumberedStep
+          n={3}
+          title="Generates a challenge"
+          description="A specific, time-boxed challenge is created — with a clear reward if you complete it with your group."
+        />
+        <div style={{ height: 8 }} />
+        <OutlineButton onClick={() => setShowAIInfo(false)}>Got it</OutlineButton>
       </BottomSheet>
     </div>
   );

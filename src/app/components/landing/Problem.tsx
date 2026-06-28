@@ -65,11 +65,7 @@ export function Problem() {
   return (
     <section style={{ background: "white" }}>
       <div
-        style={{
-          maxWidth: 1440,
-          margin: "0 auto",
-          padding: "120px 80px",
-        }}
+        style={{ maxWidth: 1440, margin: "0 auto" }}
         className="px-5 md:px-[80px] py-16 md:py-[120px]"
       >
         {/* Label + heading */}

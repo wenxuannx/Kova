@@ -5,8 +5,6 @@ import { Problem } from "./Problem";
 import { HowItWorks } from "./HowItWorks";
 import { AIQuestEngine } from "./AIQuestEngine";
 import { EthicalMechanic } from "./EthicalMechanic";
-import { SocialSection } from "./SocialSection";
-import { Testimonials } from "./Testimonials";
 import { CTABanner } from "./CTABanner";
 import { Footer } from "./Footer";
 
@@ -29,8 +27,6 @@ export function LandingPage({ onGetStarted, onSignIn }: Props) {
       <HowItWorks />
       <AIQuestEngine />
       <EthicalMechanic />
-      <SocialSection />
-      <Testimonials />
       <CTABanner onGetStarted={onGetStarted} />
       <Footer />
     </div>

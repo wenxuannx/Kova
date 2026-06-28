@@ -71,6 +71,7 @@ export function RegisterScreen({ onGoToLogin, onGoBack }: Props) {
   const [showPw, setShowPw] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [registered, setRegistered] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{
     name?: string;
@@ -115,7 +116,77 @@ export function RegisterScreen({ onGoToLogin, onGoBack }: Props) {
     setLoading(true);
     const result = await register(name.trim(), email.trim(), password);
     setLoading(false);
-    if (!result.ok) setApiError(result.error ?? "Registration failed. Please try again.");
+    if (!result.ok) {
+      setApiError(result.error ?? "Registration failed. Please try again.");
+    } else {
+      setRegistered(true);
+    }
+  }
+
+  if (registered) {
+    return (
+      <div
+        style={{
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "0 32px",
+          textAlign: "center",
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.38, ease: [0.25, 0.46, 0.45, 0.94] }}
+          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}
+        >
+          <div
+            style={{
+              width: 72,
+              height: 72,
+              borderRadius: "50%",
+              background: "rgba(123,97,255,0.10)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Mail size={32} color={C.primary} strokeWidth={1.6} />
+          </div>
+          <h2 style={{ fontSize: 24, fontWeight: 700, color: C.text, margin: 0, letterSpacing: "-0.3px" }}>
+            Check your email
+          </h2>
+          <p style={{ fontSize: 14, color: C.textSecondary, margin: 0, lineHeight: 1.6 }}>
+            We sent a confirmation link to{" "}
+            <span style={{ fontWeight: 600, color: C.text }}>{email}</span>. Click it to activate your account.
+          </p>
+          <p style={{ fontSize: 13, color: C.muted, margin: "8px 0 0", lineHeight: 1.5 }}>
+            Once confirmed, come back and sign in.
+          </p>
+          <button
+            type="button"
+            onClick={onGoToLogin}
+            style={{
+              marginTop: 8,
+              background: C.primary,
+              color: "white",
+              border: "none",
+              borderRadius: 14,
+              height: 52,
+              width: "100%",
+              fontSize: 15,
+              fontWeight: 600,
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
+          >
+            Go to sign in
+          </button>
+        </motion.div>
+      </div>
+    );
   }
 
   return (
@@ -176,7 +247,7 @@ export function RegisterScreen({ onGoToLogin, onGoBack }: Props) {
           }}
         />
         <p style={{ fontSize: 11, fontWeight: 600, color: C.primary, margin: "6px 0 0", letterSpacing: "0.13em" }}>
-          BANKING. SMARTER.
+          GOALS. TOGETHER.
         </p>
       </motion.div>
 
@@ -269,7 +340,7 @@ export function RegisterScreen({ onGoToLogin, onGoBack }: Props) {
               type={showPw ? "text" : "password"}
               value={password}
               onChange={(e) => { setPassword(e.target.value); clearField("password"); }}
-              placeholder="Min. 6 characters"
+              placeholder="Enter password"
               autoComplete="new-password"
               style={inputEl}
             />
@@ -308,7 +379,7 @@ export function RegisterScreen({ onGoToLogin, onGoBack }: Props) {
               type={showConfirm ? "text" : "password"}
               value={confirmPassword}
               onChange={(e) => { setConfirmPassword(e.target.value); clearField("confirmPassword"); }}
-              placeholder="Repeat your password"
+              placeholder="Re-enter password"
               autoComplete="new-password"
               style={inputEl}
             />

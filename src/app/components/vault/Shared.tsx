@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { Home, Target, Users, Plus, BarChart2 } from "lucide-react";
+import { Home, Target, Users, Plus, BarChart2, Bell } from "lucide-react";
 
 // ─── Tokens ────────────────────────────────────────────────────────────────────
 export const C = {
@@ -26,12 +26,14 @@ export type Screen =
   | "group"
   | "new"
   | "insights"
+  | "notifications"
   | "member-profile"
-  | "wallet";
+  | "wallet"
+  | "profile";
 
 export type QuestStatus = "active" | "completed" | "rescheduled" | "expired";
 
-export type NavigatePayload = { memberId?: string };
+export type NavigatePayload = { memberId?: string; groupId?: string };
 export type NavigateFn = (screen: Screen, payload?: NavigatePayload) => void;
 
 // ─── useIsDesktop ─────────────────────────────────────────────────────────────
@@ -318,6 +320,52 @@ export function PrimaryButton({
   );
 }
 
+// ─── SmallPillButton ──────────────────────────────────────────────────────────
+export function SmallPillButton({
+  children,
+  onClick,
+  style,
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 5,
+        background: "white",
+        color: C.primary,
+        border: "1.5px solid rgba(123,97,255,0.28)",
+        borderRadius: 50,
+        height: 32,
+        padding: "0 14px",
+        fontSize: 12,
+        fontWeight: 600,
+        cursor: "pointer",
+        fontFamily: "inherit",
+        transition: "border-color 0.15s, box-shadow 0.15s",
+        whiteSpace: "nowrap",
+        ...style,
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = C.primary;
+        e.currentTarget.style.boxShadow = "0 2px 8px rgba(123,97,255,0.15)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = "rgba(123,97,255,0.28)";
+        e.currentTarget.style.boxShadow = "none";
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
 // ─── OutlineButton ────────────────────────────────────────────────────────────
 export function OutlineButton({
   children,
@@ -501,12 +549,12 @@ export function BottomNav({ active, onNavigate }: { active: Screen; onNavigate: 
   if (isDesktop) return null;
 
   const tabActive = active === "member-profile" ? "group" : active;
-  const items: { id: Screen; Icon: React.ElementType; label: string }[] = [
+  const items: { id: Screen; Icon: React.ElementType; label: string; badge?: boolean }[] = [
     { id: "home", Icon: Home, label: "Home" },
-    { id: "quest", Icon: Target, label: "Quest" },
-    { id: "group", Icon: Users, label: "Group" },
-    { id: "new", Icon: Plus, label: "New vault" },
-    { id: "insights", Icon: BarChart2, label: "Insights" },
+    { id: "quest", Icon: Target, label: "Challenges" },
+    { id: "group", Icon: Users, label: "Goal Groups" },
+    { id: "new", Icon: Plus, label: "New goal" },
+    { id: "notifications", Icon: Bell, label: "Notifications", badge: true },
   ];
   return (
     <div
@@ -521,7 +569,7 @@ export function BottomNav({ active, onNavigate }: { active: Screen; onNavigate: 
       role="navigation"
       aria-label="Main navigation"
     >
-      {items.map(({ id, Icon, label }) => {
+      {items.map(({ id, Icon, label, badge }) => {
         const isActive = id === tabActive;
         return (
           <button
@@ -541,13 +589,22 @@ export function BottomNav({ active, onNavigate }: { active: Screen; onNavigate: 
               cursor: "pointer",
               minWidth: 44,
               minHeight: 44,
+              position: "relative",
             }}
           >
-            <Icon
-              size={20}
-              color={isActive ? "white" : C.muted}
-              strokeWidth={isActive ? 2.2 : 1.8}
-            />
+            <Icon size={20} color={isActive ? "white" : C.muted} strokeWidth={isActive ? 2.2 : 1.8} />
+            {badge && !isActive && (
+              <span style={{
+                position: "absolute",
+                top: 6,
+                right: "calc(50% - 14px)",
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: C.danger,
+                border: "1.5px solid white",
+              }} />
+            )}
           </button>
         );
       })}

@@ -19,7 +19,7 @@ type PlaidStep = "select-bank" | "credentials" | "connecting" | "select-account"
 
 // ─── Plaid Link Simulation (rendered as a bottom-sheet-style overlay) ─────────
 
-function PlaidLinkSimulator({
+export function PlaidLinkSimulator({
   onSuccess,
   onClose,
 }: {

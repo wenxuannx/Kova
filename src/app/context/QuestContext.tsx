@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { generateQuest as apiGenerateQuest } from "../../lib/gemini";
-import type { QuestInput, GeneratedQuest } from "../../lib/gemini";
+import { generateQuest as apiGenerateQuest } from "../../lib/anthropic";
+import type { QuestInput, GeneratedQuest } from "../../lib/anthropic";
 import type { QuestStatus } from "../components/vault/Shared";
 import { useAuth } from "./AuthContext";
 

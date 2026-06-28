@@ -7,6 +7,8 @@ import { NewVaultScreen } from "./components/vault/NewVaultScreen";
 import { InsightsScreen } from "./components/vault/InsightsScreen";
 import { MemberProfileScreen } from "./components/vault/MemberProfileScreen";
 import { WalletScreen } from "./components/vault/WalletScreen";
+import { ProfileScreen } from "./components/vault/ProfileScreen";
+import { NotificationsScreen } from "./components/vault/NotificationsScreen";
 import { LandingPage } from "./components/landing/LandingPage";
 import kovaLogo from "../imgs/kova_logo.png";
 import { LoginScreen } from "./components/auth/LoginScreen";
@@ -30,8 +32,10 @@ const SCREEN_LEVEL: Record<Screen, number> = {
   group: 1,
   new: 1,
   insights: 1,
+  notifications: 1,
   wallet: 1,
   "member-profile": 2,
+  "profile": 1,
 };
 
 // ─── App ─────────────────────────────────────────────────────────────────────
@@ -47,6 +51,7 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>("home");
   const [navDirection, setNavDirection] = useState<1 | -1>(1);
   const [selectedMember, setSelectedMember] = useState<string>("SR");
+  const [selectedGroupId, setSelectedGroupId] = useState<string>("");
 
   // Reset to home when user logs in fresh
   useEffect(() => {
@@ -68,6 +73,7 @@ export default function App() {
     const direction = SCREEN_LEVEL[s] < SCREEN_LEVEL[screen] ? -1 : 1;
     setNavDirection(direction);
     if (payload?.memberId) setSelectedMember(payload.memberId);
+    setSelectedGroupId(payload?.groupId ?? (s === "group" && !payload?.groupId ? "" : selectedGroupId));
     setScreen(s);
   };
 
@@ -96,15 +102,19 @@ export default function App() {
       case "quest":
         return <QuestDetailScreen onNavigate={navigate} />;
       case "group":
-        return <GroupScreen onNavigate={navigate} />;
+        return <GroupScreen groupId={selectedGroupId} onNavigate={navigate} />;
       case "new":
         return <NewVaultScreen onNavigate={navigate} />;
       case "insights":
         return <InsightsScreen onNavigate={navigate} />;
+      case "notifications":
+        return <NotificationsScreen onNavigate={navigate} />;
       case "member-profile":
-        return <MemberProfileScreen memberId={selectedMember} onNavigate={navigate} />;
+        return <MemberProfileScreen memberId={selectedMember} returnGroupId={selectedGroupId} onNavigate={navigate} />;
       case "wallet":
         return <WalletScreen onNavigate={navigate} />;
+      case "profile":
+        return <ProfileScreen onNavigate={navigate} />;
     }
   }
 
@@ -159,10 +169,10 @@ export default function App() {
       <div style={{ position: "relative", zIndex: 1, maxWidth: 440 }}>
         <img src={kovaLogo} alt="Kova" style={{ height: 48, width: "auto", filter: "brightness(0) invert(1)", marginBottom: 40, display: "block" }} />
         <h2 style={{ fontSize: 36, fontWeight: 800, color: "white", lineHeight: 1.2, letterSpacing: "-0.03em", margin: "0 0 16px" }}>
-          Banking, the way it should be.
+          Your goals, held accountable.
         </h2>
         <p style={{ fontSize: 16, color: "rgba(255,255,255,0.75)", lineHeight: 1.7, margin: "0 0 48px" }}>
-          Set goals. Stake the pool. Complete AI-generated quests with your group — and actually follow through.
+          Kova uses loss aversion and social accountability to help you follow through on financial goals you already want to achieve.
         </p>
         {["AI quests tailored to your spending habits", "Group accountability that actually works", "Loss aversion mechanics that keep you on track"].map((f) => (
           <div key={f} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
@@ -307,30 +317,27 @@ export default function App() {
 
   // ── Onboarding ─────────────────────────────────────────────────────────────
   if (phase === "onboarding") {
+    const onboardingPanel = (
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 540,
+          height: "100vh",
+          background: "#F0EFFE",
+          position: "relative",
+          overflow: "hidden",
+          boxShadow: "0 0 60px rgba(91,63,223,0.12)",
+          borderRadius: isDesktop ? 24 : 0,
+        }}
+      >
+        <OnboardingScreen />
+      </div>
+    );
+
     return (
       <MotionConfig reducedMotion="user">
-        <div
-          style={{
-            minHeight: "100vh",
-            background: BG,
-            display: "flex",
-            justifyContent: "center",
-            fontFamily: FONT,
-          }}
-        >
-          <div
-            style={{
-              width: "100%",
-              maxWidth: 480,
-              height: "100vh",
-              background: "#F0EFFE",
-              position: "relative",
-              overflow: "hidden",
-              boxShadow: "0 0 60px rgba(91,63,223,0.12)",
-            }}
-          >
-            <OnboardingScreen />
-          </div>
+        <div style={{ minHeight: "100vh", background: BG, display: "flex", justifyContent: "center", alignItems: "center", fontFamily: FONT }}>
+          {onboardingPanel}
         </div>
       </MotionConfig>
     );
@@ -364,17 +371,14 @@ export default function App() {
         {/* App column */}
         <div
           style={{
-            flex: isDesktop ? 1 : undefined,
+            flex: 1,
             width: isDesktop ? undefined : "100%",
-            maxWidth: 480,
+            maxWidth: isDesktop ? undefined : 480,
             height: "100vh",
             background: "#F0EFFE",
             position: "relative",
             overflow: "hidden",
             boxShadow: isDesktop ? "none" : "0 0 60px rgba(91,63,223,0.12)",
-            // Centre the column in the remaining space on desktop
-            marginLeft: isDesktop ? "auto" : undefined,
-            marginRight: isDesktop ? "auto" : undefined,
           }}
         >
           <AnimatePresence mode="popLayout" custom={navDirection}>
@@ -388,7 +392,11 @@ export default function App() {
               transition={slideTransition}
               style={{ position: "absolute", inset: 0 }}
             >
-              {renderAppScreen()}
+              {isDesktop ? (
+                <div style={{ maxWidth: 860, margin: "0 auto", height: "100%", padding: "0 20px" }}>
+                  {renderAppScreen()}
+                </div>
+              ) : renderAppScreen()}
             </motion.div>
           </AnimatePresence>
         </div>

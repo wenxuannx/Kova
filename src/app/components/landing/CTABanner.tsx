@@ -50,7 +50,6 @@ export function CTABanner({ onGetStarted }: CTABannerProps) {
         style={{
           maxWidth: 1440,
           margin: "0 auto",
-          padding: "100px 80px",
           textAlign: "center",
           position: "relative",
           zIndex: 1,
@@ -87,8 +86,7 @@ export function CTABanner({ onGetStarted }: CTABannerProps) {
 
         {/* CTAs */}
         <div
-          className="flex flex-col sm:flex-row justify-center"
-          style={{ gap: 12, marginBottom: 40 }}
+          style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: 12, marginBottom: 40 }}
         >
           <button
             onClick={onGetStarted}
@@ -102,12 +100,13 @@ export function CTABanner({ onGetStarted }: CTABannerProps) {
               fontWeight: 600,
               border: "none",
               borderRadius: 50,
-              height: 52,
-              padding: "0 32px",
+              height: 48,
+              padding: "0 24px",
               cursor: "pointer",
               fontFamily: "inherit",
               boxShadow: "0 4px 20px rgba(0,0,0,0.18)",
               transition: "transform 0.15s ease",
+              whiteSpace: "nowrap",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-1px)")}
             onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
@@ -119,18 +118,18 @@ export function CTABanner({ onGetStarted }: CTABannerProps) {
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: 8,
               background: "transparent",
               color: "white",
               fontSize: 15,
               fontWeight: 500,
               border: "1.5px solid rgba(255,255,255,0.50)",
               borderRadius: 50,
-              height: 52,
-              padding: "0 32px",
+              height: 48,
+              padding: "0 24px",
               cursor: "pointer",
               fontFamily: "inherit",
               transition: "border-color 0.15s ease",
+              whiteSpace: "nowrap",
             }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.borderColor = "rgba(255,255,255,0.85)")
@@ -145,8 +144,7 @@ export function CTABanner({ onGetStarted }: CTABannerProps) {
 
         {/* Trust row */}
         <div
-          className="flex flex-col sm:flex-row justify-center"
-          style={{ gap: 28, alignItems: "center" }}
+          style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: 20, alignItems: "center" }}
         >
           {TRUST.map(({ Icon, label }) => (
             <div

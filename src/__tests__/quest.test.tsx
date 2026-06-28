@@ -5,12 +5,12 @@ import React from "react";
 import { QuestContext, type QuestContextValue } from "../app/context/QuestContext";
 import { AuthContext, type AuthContextValue } from "../app/context/AuthContext";
 import { QuestGeneratorSheet } from "../app/components/vault/QuestGeneratorSheet";
-import * as gemini from "../lib/gemini";
+import * as anthropic from "../lib/anthropic";
 import type { Quest } from "../app/context/QuestContext";
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
-vi.mock("../lib/gemini", () => ({
+vi.mock("../lib/anthropic", () => ({
   generateQuest: vi.fn(),
 }));
 
@@ -209,7 +209,7 @@ describe("QuestGeneratorSheet", () => {
   });
 });
 
-describe("gemini.generateQuest", () => {
+describe("anthropic.generateQuest", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
@@ -217,17 +217,17 @@ describe("gemini.generateQuest", () => {
   it("throws when API key is missing", async () => {
     // The real function checks import.meta.env — in tests it's undefined unless set.
     // We directly import and call to verify the error boundary.
-    const spy = vi.spyOn(gemini, "generateQuest").mockRejectedValue(
+    const spy = vi.spyOn(anthropic, "generateQuest").mockRejectedValue(
       new Error("VITE_GEMINI_API_KEY is not set.")
     );
     await expect(
-      gemini.generateQuest({ weeklyBudget: 200, overspendCategory: "Food delivery", weeklyOverspend: 60, savingsGoal: "Emergency fund" })
+      anthropic.generateQuest({ weeklyBudget: 200, overspendCategory: "Food delivery", weeklyOverspend: 60, savingsGoal: "Emergency fund" })
     ).rejects.toThrow("VITE_GEMINI_API_KEY is not set.");
     spy.mockRestore();
   });
 
   it("parses a valid Gemini response into GeneratedQuest", async () => {
-    const expected: gemini.GeneratedQuest = {
+    const expected: anthropic.GeneratedQuest = {
       title: "Keep food delivery under $40",
       rationale: "You overspent $55 last week.",
       category: "Food delivery",
@@ -239,9 +239,9 @@ describe("gemini.generateQuest", () => {
       difficulty: "medium",
       estimatedSavings: 55,
     };
-    vi.spyOn(gemini, "generateQuest").mockResolvedValue(expected);
+    vi.spyOn(anthropic, "generateQuest").mockResolvedValue(expected);
 
-    const result = await gemini.generateQuest({
+    const result = await anthropic.generateQuest({
       weeklyBudget: 300,
       overspendCategory: "Food delivery",
       weeklyOverspend: 55,

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 import {
   C,
   StatusBar,
   Card,
   SectionLabel,
   Avatar,
-  Pill,
   Divider,
   BottomNav,
   BackButton,
@@ -77,14 +77,41 @@ const TILE_COLORS: Record<TileState, { bg: string; label: string }> = {
   upcoming: { bg: "#E5E7EB", label: "upcoming" },
 };
 
+function formatMemberSince(isoDate?: string): string {
+  if (!isoDate) return "";
+  const d = new Date(isoDate);
+  return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
+
 export function MemberProfileScreen({
   memberId,
+  returnGroupId,
   onNavigate,
 }: {
   memberId: string;
+  returnGroupId?: string;
   onNavigate: NavigateFn;
 }) {
-  const member = MEMBERS[memberId] ?? MEMBERS.SR;
+  const { user: authUser } = useAuth();
+
+  const isSelf = memberId === "me" || (MEMBERS[memberId]?.isCurrentUser ?? false);
+
+  const member: MemberData = (() => {
+    if (isSelf && authUser) {
+      const base = MEMBERS[memberId] ?? MEMBERS.JL;
+      return {
+        ...base,
+        name: authUser.name || base.name,
+        initials: authUser.name
+          ? authUser.name.trim().split(" ").map((p: string) => p[0]).join("").toUpperCase().slice(0, 2)
+          : base.initials,
+        memberSince: authUser.createdAt ? formatMemberSince(authUser.createdAt) : base.memberSince,
+        isCurrentUser: true,
+      };
+    }
+    return MEMBERS[memberId] ?? MEMBERS.SR;
+  })();
+
   const [nudged, setNudged] = useState(false);
 
   const gridLabel = member.grid
@@ -96,16 +123,8 @@ export function MemberProfileScreen({
       <StatusBar />
       <ScrollArea style={{ padding: "0 20px 110px" }}>
         {/* Top row */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 20,
-          }}
-        >
-          <BackButton onPress={() => onNavigate("group")} />
-          <Pill color="purple">Emergency fund pact</Pill>
+        <div style={{ marginBottom: 20 }}>
+          <BackButton onPress={() => onNavigate("group", returnGroupId ? { groupId: returnGroupId } : undefined)} />
         </div>
 
         {/* Profile header */}
@@ -232,12 +251,13 @@ export function MemberProfileScreen({
                   borderRadius: 8,
                   background: TILE_COLORS[tile].bg,
                   display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  alignItems: "flex-start",
+                  justifyContent: "flex-start",
+                  padding: "6px 7px",
                 }}
                 title={`Week ${i + 1}: ${TILE_COLORS[tile].label}`}
               >
-                <span style={{ fontSize: 9, color: "white", fontWeight: 600, opacity: 0.8 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.75)", lineHeight: 1 }}>
                   W{i + 1}
                 </span>
               </div>
@@ -326,17 +346,7 @@ export function MemberProfileScreen({
               </p>
             )}
           </>
-        ) : (
-          <>
-            <SectionLabel>Account</SectionLabel>
-            <Card>
-              <p style={{ fontSize: 14, color: C.textSecondary, margin: 0, lineHeight: 1.5 }}>
-                Profile settings, notification preferences, and privacy controls coming in the next
-                update.
-              </p>
-            </Card>
-          </>
-        )}
+        ) : null}
       </ScrollArea>
 
       <div style={{ position: "absolute", bottom: 20, left: 16, right: 16, zIndex: 10 }}>

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Sparkles, AlertCircle, RefreshCw } from "lucide-react";
 import { C, PrimaryButton, BottomSheet } from "./Shared";
 import { useQuest } from "../../context/QuestContext";
-import type { QuestInput } from "../../../lib/gemini";
+import type { QuestInput } from "../../../lib/anthropic";
 
 interface Props {
   isOpen: boolean;
@@ -28,6 +28,7 @@ const GOALS = [
   "New gadget / purchase",
   "Investment",
   "General savings",
+  "Others",
 ];
 
 function Chip({ label, selected, onToggle }: { label: string; selected: boolean; onToggle: () => void }) {
@@ -85,35 +86,33 @@ export function QuestGeneratorSheet({ isOpen, onClose }: Props) {
   const [step, setStep] = useState<"form" | "generating" | "done">("form");
   const [budget, setBudget] = useState("");
   const [category, setCategory] = useState("");
-  const [overSpend, setOverSpend] = useState("");
   const [goal, setGoal] = useState("");
-  const [context, setContext] = useState("");
+  const [customGoal, setCustomGoal] = useState("");
   const [formError, setFormError] = useState("");
 
   function reset() {
     setStep("form");
     setBudget("");
     setCategory("");
-    setOverSpend("");
     setGoal("");
-    setContext("");
+    setCustomGoal("");
     setFormError("");
   }
 
   async function handleGenerate() {
     if (!budget || Number(budget) <= 0) { setFormError("Enter your weekly budget."); return; }
     if (!category) { setFormError("Select a spending category."); return; }
-    if (!overSpend || Number(overSpend) <= 0) { setFormError("Enter your weekly overspend amount."); return; }
     if (!goal) { setFormError("Select a savings goal."); return; }
+    if (goal === "Others" && !customGoal.trim()) { setFormError("Describe your savings goal."); return; }
     setFormError("");
     setStep("generating");
 
     const input: QuestInput = {
       weeklyBudget: Number(budget),
       overspendCategory: category,
-      weeklyOverspend: Number(overSpend),
-      savingsGoal: goal,
-      context: context.trim() || undefined,
+      weeklyOverspend: 0,
+      savingsGoal: goal === "Others" ? customGoal.trim() : goal,
+      context: undefined,
     };
 
     await generateQuest(input);
@@ -136,8 +135,8 @@ export function QuestGeneratorSheet({ isOpen, onClose }: Props) {
                 <Sparkles size={18} color={C.primary} />
               </div>
               <div>
-                <p style={{ fontSize: 16, fontWeight: 700, color: C.text, margin: 0 }}>Generate my quest</p>
-                <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>Powered by Gemini AI</p>
+                <p style={{ fontSize: 16, fontWeight: 700, color: C.text, margin: 0 }}>Generate my challenge</p>
+                <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>Powered by Claude AI</p>
               </div>
             </div>
 
@@ -157,33 +156,37 @@ export function QuestGeneratorSheet({ isOpen, onClose }: Props) {
               </div>
             </div>
 
-            {/* Overspend amount */}
-            <div style={{ marginBottom: 18 }}>
-              <FieldLabel>Weekly overspend in that category</FieldLabel>
-              <AmountInput id="gen-overspend" value={overSpend} onChange={setOverSpend} placeholder="e.g. 60" />
-            </div>
-
             {/* Savings goal */}
-            <div style={{ marginBottom: 18 }}>
+            <div style={{ marginBottom: 20 }}>
               <FieldLabel>Savings goal</FieldLabel>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {GOALS.map((g) => (
-                  <Chip key={g} label={g} selected={goal === g} onToggle={() => setGoal(g === goal ? "" : g)} />
+                  <Chip key={g} label={g} selected={goal === g} onToggle={() => { setGoal(g === goal ? "" : g); if (g !== "Others") setCustomGoal(""); }} />
                 ))}
               </div>
-            </div>
-
-            {/* Optional context */}
-            <div style={{ marginBottom: 20 }}>
-              <FieldLabel>Anything else? <span style={{ fontWeight: 400, color: C.muted }}>(optional)</span></FieldLabel>
-              <textarea
-                value={context}
-                onChange={(e) => setContext(e.target.value.slice(0, 200))}
-                placeholder="e.g. I have a big event next weekend, tend to spend more on weekends…"
-                rows={2}
-                style={{ width: "100%", background: "#F9F8FF", border: "1.5px solid rgba(123,97,255,0.12)", borderRadius: 12, padding: "10px 12px", fontSize: 13, color: C.text, resize: "none", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
-              />
-              <p style={{ fontSize: 11, color: C.muted, margin: "4px 0 0", textAlign: "right" }}>{context.length}/200</p>
+              {goal === "Others" && (
+                <input
+                  type="text"
+                  value={customGoal}
+                  onChange={(e) => setCustomGoal(e.target.value)}
+                  placeholder="Describe your goal…"
+                  autoFocus
+                  style={{
+                    marginTop: 10,
+                    width: "100%",
+                    border: "1.5px solid rgba(123,97,255,0.22)",
+                    borderRadius: 12,
+                    height: 44,
+                    padding: "0 12px",
+                    fontSize: 14,
+                    color: C.text,
+                    background: "white",
+                    outline: "none",
+                    boxSizing: "border-box",
+                    fontFamily: "inherit",
+                  }}
+                />
+              )}
             </div>
 
             {formError && (
@@ -193,7 +196,7 @@ export function QuestGeneratorSheet({ isOpen, onClose }: Props) {
             )}
 
             <PrimaryButton onClick={handleGenerate}>
-              <Sparkles size={15} style={{ marginRight: 6 }} /> Generate quest
+              <Sparkles size={15} style={{ marginRight: 6 }} /> Generate challenge
             </PrimaryButton>
           </motion.div>
         )}
@@ -206,10 +209,10 @@ export function QuestGeneratorSheet({ isOpen, onClose }: Props) {
               style={{ width: 48, height: 48, border: "3px solid rgba(123,97,255,0.15)", borderTop: `3px solid ${C.primary}`, borderRadius: "50%", margin: "0 auto 20px" }}
             />
             <p style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: "0 0 6px" }}>
-              Crafting your quest…
+              Crafting your challenge…
             </p>
             <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>
-              Gemini is analysing your spending profile
+              Claude is analysing your spending profile
             </p>
           </motion.div>
         )}
@@ -239,7 +242,7 @@ export function QuestGeneratorSheet({ isOpen, onClose }: Props) {
                       <path d="M1 6l4 4 8-9" stroke={C.success} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: C.success, margin: 0 }}>Quest generated!</p>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: C.success, margin: 0 }}>Challenge generated!</p>
                 </div>
 
                 <div style={{ background: "linear-gradient(135deg, #9B7FFF 0%, #5B3FDF 100%)", borderRadius: 16, padding: "16px", marginBottom: 16, color: "white" }}>
@@ -260,7 +263,7 @@ export function QuestGeneratorSheet({ isOpen, onClose }: Props) {
                   </div>
                 </div>
 
-                <PrimaryButton onClick={handleClose}>View my quest →</PrimaryButton>
+                <PrimaryButton onClick={handleClose}>View my challenge →</PrimaryButton>
                 <button
                   type="button"
                   onClick={() => setStep("form")}

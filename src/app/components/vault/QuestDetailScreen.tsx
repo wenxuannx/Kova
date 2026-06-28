@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Sparkles, X } from "lucide-react";
 import { motion } from "motion/react";
 import { useQuest } from "../../context/QuestContext";
+import { QuestGeneratorSheet } from "./QuestGeneratorSheet";
 import {
   C,
   StatusBar,
@@ -36,6 +37,7 @@ export function QuestDetailScreen({
 
   const questStatus = currentQuest?.status ?? "active";
   const hasRescheduledThisMonth = currentQuest?.hasRescheduled ?? false;
+  const [generatorOpen, setGeneratorOpen] = useState(false);
   const [urgentDismissed, setUrgentDismissed] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmPhase, setConfirmPhase] = useState<"idle" | "submitting" | "success" | "error">(
@@ -83,7 +85,7 @@ export function QuestDetailScreen({
           }}
         >
           <BackButton onPress={() => onNavigate("home")} />
-          {contextualBadge()}
+          {currentQuest && contextualBadge()}
         </div>
 
         {/* Urgent banner */}
@@ -182,136 +184,96 @@ export function QuestDetailScreen({
                 lineHeight: 1.25,
               }}
             >
-              {currentQuest?.title ?? "No quest yet"}
+              {currentQuest?.title ?? "No challenge yet"}
             </p>
-            <p
-              style={{
-                fontSize: 13,
-                color: "rgba(255,255,255,0.80)",
-                margin: "0 0 20px",
-                lineHeight: 1.55,
-              }}
-            >
-              {currentQuest?.rationale ?? "Generate a quest from the home screen."}
-            </p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              <div
-                style={{
-                  background: "rgba(255,255,255,0.13)",
-                  borderRadius: 12,
-                  padding: "12px 14px",
-                }}
-              >
+            {currentQuest ? (
+              <>
                 <p
                   style={{
-                    fontSize: 11,
-                    color: "rgba(255,255,255,0.70)",
-                    margin: "0 0 4px",
-                    fontWeight: 500,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
+                    fontSize: 13,
+                    color: "rgba(255,255,255,0.80)",
+                    margin: "0 0 20px",
+                    lineHeight: 1.55,
                   }}
                 >
-                  Complete
+                  {currentQuest.rationale}
                 </p>
-                <p style={{ fontSize: 15, fontWeight: 700, color: "white", margin: 0 }}>
-                  {currentQuest?.reward ?? "—"}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div style={{ background: "rgba(255,255,255,0.13)", borderRadius: 12, padding: "12px 14px" }}>
+                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.70)", margin: "0 0 4px", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.06em" }}>Complete</p>
+                    <p style={{ fontSize: 15, fontWeight: 700, color: "white", margin: 0 }}>{currentQuest.reward}</p>
+                  </div>
+                  <div style={{ background: "rgba(255,255,255,0.13)", borderRadius: 12, padding: "12px 14px" }}>
+                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.70)", margin: "0 0 4px", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.06em" }}>Miss it</p>
+                    <p style={{ fontSize: 15, fontWeight: 600, color: "rgba(255,255,255,0.82)", margin: 0 }}>{currentQuest.stake}</p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div style={{ marginTop: 8 }}>
+                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.70)", margin: "0 0 16px", lineHeight: 1.55 }}>
+                  Generate your first AI challenge to get started.
                 </p>
-              </div>
-              <div
-                style={{
-                  background: "rgba(255,255,255,0.13)",
-                  borderRadius: 12,
-                  padding: "12px 14px",
-                }}
-              >
-                <p
+                <button
+                  onClick={() => setGeneratorOpen(true)}
                   style={{
-                    fontSize: 11,
-                    color: "rgba(255,255,255,0.70)",
-                    margin: "0 0 4px",
-                    fontWeight: 500,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                  }}
-                >
-                  Miss it
-                </p>
-                <p
-                  style={{
-                    fontSize: 15,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    background: "white",
+                    color: C.primary,
+                    border: "none",
+                    borderRadius: 50,
+                    height: 36,
+                    padding: "0 16px",
+                    fontSize: 13,
                     fontWeight: 600,
-                    color: "rgba(255,255,255,0.82)",
-                    margin: 0,
+                    cursor: "pointer",
+                    fontFamily: "inherit",
                   }}
                 >
-                  {currentQuest?.stake ?? "—"}
-                </p>
+                  <Sparkles size={13} /> Generate challenge
+                </button>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* Progress */}
-        <SectionLabel>Your Progress</SectionLabel>
-        <Card style={{ marginBottom: 24 }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "baseline",
-              marginBottom: 14,
-            }}
-          >
-            <p style={{ fontSize: 26, fontWeight: 700, color: C.text, margin: 0 }}>$38 spent</p>
-            <p style={{ fontSize: 18, fontWeight: 600, color: C.success, margin: 0 }}>$22 left</p>
-          </div>
-          <div
-            style={{
-              height: 8,
-              borderRadius: 20,
-              background: "rgba(123,97,255,0.10)",
-              marginBottom: 12,
-              overflow: "hidden",
-            }}
-            role="progressbar"
-            aria-valuenow={63}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label="63% of spending limit used"
-          >
-            <div
-              style={{
-                height: "100%",
-                width: "63%",
-                background: C.success,
-                borderRadius: 20,
-              }}
-            />
-          </div>
-          <p style={{ fontSize: 13, color: C.textSecondary, margin: 0, lineHeight: 1.55 }}>
-            On track — you've used 63% of your limit with 3 days to go.
-          </p>
-        </Card>
+        {currentQuest && (
+          <>
+            {/* Progress */}
+            <SectionLabel>Your Progress</SectionLabel>
+            <Card style={{ marginBottom: 24 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+                <p style={{ fontSize: 26, fontWeight: 700, color: C.text, margin: 0 }}>$38 spent</p>
+                <p style={{ fontSize: 18, fontWeight: 600, color: C.success, margin: 0 }}>$22 left</p>
+              </div>
+              <div
+                style={{ height: 8, borderRadius: 20, background: "rgba(123,97,255,0.10)", marginBottom: 12, overflow: "hidden" }}
+                role="progressbar" aria-valuenow={63} aria-valuemin={0} aria-valuemax={100} aria-label="63% of spending limit used"
+              >
+                <div style={{ height: "100%", width: "63%", background: C.success, borderRadius: 20 }} />
+              </div>
+              <p style={{ fontSize: 13, color: C.textSecondary, margin: 0, lineHeight: 1.55 }}>
+                On track — you've used 63% of your limit with 3 days to go.
+              </p>
+            </Card>
 
-        {/* Steps */}
-        <SectionLabel>How to Complete</SectionLabel>
-        <Card style={{ marginBottom: 24 }}>
-          {(currentQuest?.steps ?? []).map((step, i, arr) => (
-            <React.Fragment key={i}>
-              <NumberedStep n={i + 1} title={step.title} description={step.description} />
-              {i < arr.length - 1 && <Divider />}
-            </React.Fragment>
-          ))}
-          {!currentQuest && (
-            <p style={{ fontSize: 14, color: C.muted, margin: 0, textAlign: "center", padding: "12px 0" }}>
-              Generate a quest to see your steps
-            </p>
-          )}
-        </Card>
+            {/* Steps */}
+            <SectionLabel>How to Complete</SectionLabel>
+            <Card style={{ marginBottom: 24 }}>
+              {currentQuest.steps?.map((step, i, arr) => (
+                <React.Fragment key={i}>
+                  <NumberedStep n={i + 1} title={step.title} description={step.description} />
+                  {i < arr.length - 1 && <Divider />}
+                </React.Fragment>
+              ))}
+            </Card>
+          </>
+        )}
 
-        {/* Action buttons — status-dependent */}
-        {questStatus === "completed" ? (
+        {/* Action buttons — only when a challenge is active */}
+        {currentQuest && questStatus === "completed" ? (
           <div
             style={{
               width: "100%",
@@ -339,7 +301,7 @@ export function QuestDetailScreen({
               Completed this week
             </span>
           </div>
-        ) : questStatus === "expired" ? (
+        ) : currentQuest && questStatus === "expired" ? (
           <div
             style={{
               width: "100%",
@@ -352,9 +314,9 @@ export function QuestDetailScreen({
               marginBottom: 12,
             }}
           >
-            <span style={{ fontSize: 15, fontWeight: 600, color: C.danger }}>Quest expired</span>
+            <span style={{ fontSize: 15, fontWeight: 600, color: C.danger }}>Challenge expired</span>
           </div>
-        ) : (
+        ) : currentQuest ? (
           <PrimaryButton
             style={{ marginBottom: 12 }}
             onClick={() => setConfirmOpen(true)}
@@ -362,9 +324,9 @@ export function QuestDetailScreen({
           >
             Confirm completion
           </PrimaryButton>
-        )}
+        ) : null}
 
-        {hasRescheduledThisMonth ? (
+        {currentQuest && (hasRescheduledThisMonth ? (
           <DisabledTooltip message="One reschedule per month — resets on the 1st.">
             <OutlineButton disabled>Request reschedule</OutlineButton>
           </DisabledTooltip>
@@ -375,7 +337,7 @@ export function QuestDetailScreen({
               Request reschedule
             </OutlineButton>
           )
-        )}
+        ))}
 
         {/* Error state */}
         {confirmPhase === "error" && (
@@ -405,7 +367,7 @@ export function QuestDetailScreen({
       <BottomSheet
         isOpen={confirmOpen && confirmPhase === "idle"}
         onClose={() => setConfirmOpen(false)}
-        title="Confirm your quest"
+        title="Confirm your challenge"
       >
         <p style={{ fontSize: 14, color: C.textSecondary, margin: "4px 0 20px", lineHeight: 1.55 }}>
           Your group will be notified. The $50 voucher will be unlocked within 24 hours.
@@ -424,10 +386,10 @@ export function QuestDetailScreen({
       <BottomSheet
         isOpen={rescheduleOpen}
         onClose={() => setRescheduleOpen(false)}
-        title="Reschedule this quest"
+        title="Reschedule this challenge"
       >
         <p style={{ fontSize: 14, color: C.textSecondary, margin: "4px 0 16px", lineHeight: 1.55 }}>
-          Your group won't be penalised. You get one reschedule per month. The quest timer resets
+          Your group won't be penalised. You get one reschedule per month. The challenge timer resets
           to 7 days.
         </p>
         <div style={{ marginBottom: 20 }}>
@@ -488,6 +450,8 @@ export function QuestDetailScreen({
         <OutlineButton onClick={() => setRescheduleOpen(false)}>Cancel</OutlineButton>
       </BottomSheet>
 
+      <QuestGeneratorSheet isOpen={generatorOpen} onClose={() => setGeneratorOpen(false)} />
+
       {/* Full-screen success overlay */}
       {confirmPhase === "success" && (
         <div
@@ -546,7 +510,7 @@ export function QuestDetailScreen({
               lineHeight: 1.2,
             }}
           >
-            Quest complete
+            Challenge complete
           </motion.p>
           <motion.p
             initial={{ opacity: 0, y: 14 }}

@@ -1,39 +1,38 @@
 import React, { useState } from "react";
-import { Bell, Flame, Sparkles } from "lucide-react";
+import { Flame, Sparkles } from "lucide-react";
 import {
   C,
   StatusBar,
   Card,
   SectionLabel,
   Avatar,
-  StreakDots,
   Pill,
   Divider,
   PressableDiv,
   BottomNav,
   ScrollArea,
+  SmallPillButton,
   type Screen,
   type NavigateFn,
-  type DotState,
-  type AvatarColor,
   type QuestStatus,
 } from "./Shared";
 import { useQuest } from "../../context/QuestContext";
 import { QuestGeneratorSheet } from "./QuestGeneratorSheet";
 import { useAuth } from "../../context/AuthContext";
+import { useGroup } from "../../context/GroupContext";
 
 function VaultCard({
   title,
   current,
   target,
   percent,
-  active,
+  deadline,
 }: {
   title: string;
   current: string;
   target: string;
   percent: string;
-  active?: boolean;
+  deadline: string;
 }) {
   return (
     <PressableDiv
@@ -42,15 +41,15 @@ function VaultCard({
         borderRadius: 20,
         padding: "16px 18px",
         width: 210,
-        minHeight: 114,
+        minHeight: 120,
         flexShrink: 0,
-        opacity: active ? 1 : 0.68,
-        boxShadow: active ? "0px 8px 24px rgba(91,63,223,0.32)" : "none",
+        boxShadow: "0px 8px 24px rgba(91,63,223,0.28)",
         position: "relative",
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
+        gap: 10,
       }}
       aria-label={`${title}: ${current} of ${target} — ${percent}`}
     >
@@ -66,25 +65,15 @@ function VaultCard({
           pointerEvents: "none",
         }}
       />
-      <p
-        style={{
-          fontSize: 11,
-          color: "rgba(255,255,255,0.85)",
-          margin: 0,
-          fontWeight: 500,
-          position: "relative",
-        }}
-      >
-        {title}
-      </p>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-end",
-          position: "relative",
-        }}
-      >
+      <div style={{ position: "relative" }}>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.85)", margin: "0 0 2px", fontWeight: 500 }}>
+          {title}
+        </p>
+        <p style={{ fontSize: 10, color: "rgba(255,255,255,0.60)", margin: 0, fontWeight: 400 }}>
+          by {deadline}
+        </p>
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", position: "relative" }}>
         <p style={{ fontSize: 17, fontWeight: 700, color: "white", margin: 0 }}>
           {current} / {target}
         </p>
@@ -99,33 +88,9 @@ function VaultCard({
 export function DashboardScreen({ onNavigate }: { onNavigate: NavigateFn }) {
   const { currentQuest } = useQuest();
   const { user } = useAuth();
+  const { groups } = useGroup();
   const [generatorOpen, setGeneratorOpen] = useState(false);
   const questStatus = currentQuest?.status ?? "active";
-  const members: {
-    initials: string;
-    color: AvatarColor;
-    name: string;
-    dots: DotState[];
-  }[] = [
-    {
-      initials: "JL",
-      color: "purple",
-      name: "You",
-      dots: ["green", "green", "green", "green", "green", "green", "empty"],
-    },
-    {
-      initials: "SR",
-      color: "teal",
-      name: "Sarah R.",
-      dots: ["green", "green", "green", "green", "green", "red", "empty"],
-    },
-    {
-      initials: "MT",
-      color: "amber",
-      name: "Marcus T.",
-      dots: ["green", "red", "green", "green", "red", "red", "empty"],
-    },
-  ];
 
   // Contextual badge: merges deadline + status into one urgency-aware badge
   const questBadge = () => {
@@ -143,42 +108,12 @@ export function DashboardScreen({ onNavigate }: { onNavigate: NavigateFn }) {
       <ScrollArea style={{ padding: "0 20px 110px" }}>
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-          <Avatar initials="JL" size={40} color="purple" />
+          <button onClick={() => onNavigate("profile")} aria-label="View profile" style={{ background: "none", border: "none", padding: 0, cursor: "pointer", borderRadius: "50%", flexShrink: 0 }}>
+            <Avatar initials={user?.name ? user.name.trim().split(" ").map(p => p[0]).join("").toUpperCase().slice(0, 2) : "JL"} size={40} color="purple" />
+          </button>
           <p style={{ flex: 1, fontSize: 20, fontWeight: 500, color: C.text, margin: 0 }}>
             Hello, {user?.name?.split(" ")[0] ?? "there"}
           </p>
-          <button
-            aria-label="Notifications"
-            style={{
-              position: "relative",
-              width: 40,
-              height: 40,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "white",
-              borderRadius: "50%",
-              boxShadow: C.cardShadow,
-              border: "none",
-              cursor: "pointer",
-              flexShrink: 0,
-            }}
-          >
-            <Bell size={17} color={C.text} strokeWidth={1.8} />
-            <div
-              style={{
-                position: "absolute",
-                top: 8,
-                right: 8,
-                width: 8,
-                height: 8,
-                background: C.danger,
-                borderRadius: "50%",
-                border: `1.5px solid ${C.bg}`,
-              }}
-              aria-label="1 new notification"
-            />
-          </button>
         </div>
 
         {/* Balance — taps to wallet */}
@@ -207,7 +142,7 @@ export function DashboardScreen({ onNavigate }: { onNavigate: NavigateFn }) {
             >
               $1,200
             </p>
-            <span style={{ fontSize: 13, fontWeight: 600, color: C.primary }}>Wallet →</span>
+            <SmallPillButton onClick={() => onNavigate("wallet")}>Wallet →</SmallPillButton>
           </div>
           <p style={{ fontSize: 13, color: C.textSecondary, margin: 0 }}>target by Dec 31</p>
         </Card>
@@ -242,8 +177,8 @@ export function DashboardScreen({ onNavigate }: { onNavigate: NavigateFn }) {
           </div>
         </Card>
 
-        {/* VAULT */}
-        <SectionLabel>Vault</SectionLabel>
+        {/* GOALS */}
+        <SectionLabel>Goals Progress</SectionLabel>
         <div
           className="vault-scroll"
           style={{
@@ -254,27 +189,20 @@ export function DashboardScreen({ onNavigate }: { onNavigate: NavigateFn }) {
             padding: "0 20px 6px",
           }}
         >
-          <VaultCard
-            title="Emergency fund"
-            current="$696"
-            target="$1,200"
-            percent="58%"
-            active
-          />
-          <VaultCard title="Holiday savings" current="$320" target="$800" percent="40%" />
-          <VaultCard title="New laptop" current="$150" target="$1,500" percent="10%" />
+          <VaultCard title="Emergency fund" current="$696" target="$1,200" percent="58%" deadline="Dec 31, 2026" />
+          <VaultCard title="Holiday savings" current="$320" target="$800" percent="40%" deadline="Aug 15, 2026" />
+          <VaultCard title="New laptop" current="$150" target="$1,500" percent="10%" deadline="Mar 31, 2027" />
           <div style={{ width: 4, flexShrink: 0 }} />
         </div>
 
-        {/* QUEST */}
+        {/* CHALLENGE */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-          <p style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9B9AB0", margin: 0 }}>Quest</p>
-          <button
-            onClick={() => setGeneratorOpen(true)}
-            style={{ display: "flex", alignItems: "center", gap: 4, background: "none", border: "none", cursor: "pointer", fontSize: 12, fontWeight: 600, color: C.primary, padding: "4px 0", fontFamily: "inherit" }}
-          >
-            <Sparkles size={12} /> {currentQuest ? "Regenerate" : "Generate"}
-          </button>
+          <p style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9B9AB0", margin: 0 }}>Challenge</p>
+          {currentQuest && (
+            <SmallPillButton onClick={() => setGeneratorOpen(true)}>
+              <Sparkles size={11} /> Regenerate
+            </SmallPillButton>
+          )}
         </div>
 
         {currentQuest ? (
@@ -297,58 +225,57 @@ export function DashboardScreen({ onNavigate }: { onNavigate: NavigateFn }) {
           </Card>
         ) : (
           <Card style={{ marginBottom: 24 }}>
-            <button
-              onClick={() => setGeneratorOpen(true)}
-              style={{ width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit", textAlign: "left" }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(123,97,255,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Sparkles size={20} color={C.primary} />
-                </div>
-                <div>
-                  <p style={{ fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 3px" }}>No quest yet</p>
-                  <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Generate a personalised quest →</p>
-                </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(123,97,255,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Sparkles size={20} color={C.primary} />
               </div>
-            </button>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 15, fontWeight: 600, color: C.text, margin: "0 0 10px" }}>No challenge yet</p>
+                <SmallPillButton onClick={() => setGeneratorOpen(true)}>
+                  <Sparkles size={11} /> Generate
+                </SmallPillButton>
+              </div>
+            </div>
           </Card>
         )}
 
-        {/* GROUP */}
-        <SectionLabel>Group</SectionLabel>
+        {/* GOAL GROUPS */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+          <p style={{ fontSize: 11, fontWeight: 500, color: C.muted, letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>My Goal Groups</p>
+          <SmallPillButton onClick={() => onNavigate("new")}>+ New</SmallPillButton>
+        </div>
         <Card>
-          {members.map((m, i) => (
-            <div key={m.initials}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 0" }}>
-                <Avatar initials={m.initials} color={m.color} size={38} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: 14, fontWeight: 500, color: C.text, margin: "0 0 5px" }}>
-                    {m.name}
-                  </p>
-                  <StreakDots dots={m.dots} />
-                </div>
-              </div>
-              {i < members.length - 1 && <Divider />}
+          {groups.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "18px 8px" }}>
+              <p style={{ fontSize: 14, color: C.textSecondary, margin: "0 0 12px", lineHeight: 1.55 }}>
+                No goal groups yet. Create one to get an invite code and save with friends.
+              </p>
+              <SmallPillButton onClick={() => onNavigate("new")}>Create a goal group →</SmallPillButton>
             </div>
-          ))}
-          <Divider style={{ marginTop: 4 }} />
-          <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 10 }}>
-            <button
-              onClick={() => onNavigate("group")}
-              style={{
-                fontSize: 13,
-                fontWeight: 600,
-                color: C.primary,
-                cursor: "pointer",
-                background: "none",
-                border: "none",
-                padding: "4px 0",
-                minHeight: 44,
-              }}
-            >
-              View group →
-            </button>
-          </div>
+          ) : (
+            <>
+              {groups.map((g, i) => (
+                <div key={g.id}>
+                  <PressableDiv
+                    onClick={() => onNavigate("group", { groupId: g.id })}
+                    style={{ padding: "12px 0", display: "flex", alignItems: "center", gap: 12 }}
+                  >
+                    <div style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(123,97,255,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <span style={{ fontSize: 16 }}>🎯</span>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: "0 0 2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{g.goalName}</p>
+                      <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>{g.members.length} member{g.members.length !== 1 ? "s" : ""}</p>
+                    </div>
+                    <svg width="7" height="12" viewBox="0 0 7 12" fill="none" aria-hidden="true">
+                      <path d="M1 1l5 5-5 5" stroke={C.muted} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </PressableDiv>
+                  {i < groups.length - 1 && <Divider />}
+                </div>
+              ))}
+            </>
+          )}
         </Card>
       </ScrollArea>
 

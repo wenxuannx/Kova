@@ -98,7 +98,7 @@ export function UpdatePasswordScreen() {
       >
         <img src={kovaLogo} alt="Kova" style={{ width: 160, height: "auto", mixBlendMode: "multiply" }} />
         <p style={{ fontSize: 11, fontWeight: 600, color: C.primary, margin: "6px 0 0", letterSpacing: "0.13em" }}>
-          BANKING. SMARTER.
+          GOALS. TOGETHER.
         </p>
       </motion.div>
 

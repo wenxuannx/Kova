@@ -11,6 +11,7 @@ export interface User {
   bankConnected: boolean;
   bankName?: string;
   onboardingComplete: boolean;
+  createdAt?: string;
 }
 
 export interface AuthContextValue {
@@ -23,6 +24,7 @@ export interface AuthContextValue {
   completeOnboarding: (bankName?: string) => Promise<void>;
   resetPassword: (email: string) => Promise<{ ok: boolean; error?: string }>;
   updatePassword: (newPassword: string) => Promise<{ ok: boolean; error?: string }>;
+  updateName: (name: string) => Promise<{ ok: boolean; error?: string }>;
 }
 
 // Exported so tests can provide a mock value directly
@@ -39,6 +41,7 @@ function mapUser(su: SupabaseUser): User {
     bankConnected: (m.bank_connected as boolean) ?? false,
     bankName: (m.bank_name as string | undefined) ?? undefined,
     onboardingComplete: (m.onboarding_complete as boolean) ?? false,
+    createdAt: su.created_at,
   };
 }
 
@@ -131,6 +134,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { ok: true as const };
   };
 
+  const updateName = async (name: string) => {
+    const { data, error } = await supabase.auth.updateUser({ data: { name: name.trim() } });
+    if (error) return { ok: false as const, error: friendlyError(error.message) };
+    if (data.user) setUser(mapUser(data.user));
+    return { ok: true as const };
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -143,6 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         completeOnboarding,
         resetPassword,
         updatePassword,
+        updateName,
       }}
     >
       {children}

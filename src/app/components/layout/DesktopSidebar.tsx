@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Home, Target, Users, Plus, BarChart2, Wallet, LogOut } from "lucide-react";
+import { Home, Target, Users, Plus, BarChart2, Bell, Wallet, LogOut } from "lucide-react";
 import { C, Avatar, type Screen, type NavigateFn } from "../vault/Shared";
 import type { User } from "../../context/AuthContext";
 import kovaLogo from "../../../imgs/kova_logo.png";
@@ -12,12 +12,20 @@ interface Props {
   onLogout: () => void;
 }
 
-const NAV_ITEMS: { id: Screen; Icon: React.ElementType; label: string }[] = [
+// "member-profile" and "profile" are sub-screens — resolve to their parent tab for highlight purposes
+function resolveTab(screen: Screen): Screen {
+  if (screen === "member-profile") return "group";
+  if (screen === "profile") return "home";
+  return screen;
+}
+
+const NAV_ITEMS: { id: Screen; Icon: React.ElementType; label: string; badge?: boolean }[] = [
   { id: "home", Icon: Home, label: "Home" },
-  { id: "quest", Icon: Target, label: "Quest" },
-  { id: "group", Icon: Users, label: "Group" },
-  { id: "new", Icon: Plus, label: "New vault" },
+  { id: "quest", Icon: Target, label: "Challenges" },
+  { id: "group", Icon: Users, label: "Goal Groups" },
+  { id: "new", Icon: Plus, label: "New goal" },
   { id: "insights", Icon: BarChart2, label: "Insights" },
+  { id: "notifications", Icon: Bell, label: "Notifications", badge: true },
   { id: "wallet", Icon: Wallet, label: "Wallet" },
 ];
 
@@ -27,8 +35,7 @@ function getInitials(name: string) {
 }
 
 export function DesktopSidebar({ active, onNavigate, user, onLogout }: Props) {
-  // "member-profile" is a sub-screen of group
-  const tabActive: Screen = active === "member-profile" ? "group" : active;
+  const tabActive = resolveTab(active);
 
   return (
     <motion.aside
@@ -85,7 +92,7 @@ export function DesktopSidebar({ active, onNavigate, user, onLogout }: Props) {
 
       {/* Nav items */}
       <nav role="navigation" aria-label="Main navigation" style={{ flex: 1 }}>
-        {NAV_ITEMS.map(({ id, Icon, label }) => {
+        {NAV_ITEMS.map(({ id, Icon, label, badge }) => {
           const isActive = id === tabActive;
           return (
             <motion.button
@@ -109,33 +116,22 @@ export function DesktopSidebar({ active, onNavigate, user, onLogout }: Props) {
                 marginBottom: 2,
                 textAlign: "left",
                 transition: "background 0.15s",
+                position: "relative",
               }}
             >
-              <Icon
-                size={18}
-                color={isActive ? C.primary : C.muted}
-                strokeWidth={isActive ? 2.2 : 1.8}
-              />
-              <span
-                style={{
-                  fontSize: 14,
-                  fontWeight: isActive ? 600 : 400,
-                  color: isActive ? C.primary : C.text,
-                  fontFamily: "inherit",
-                }}
-              >
+              <div style={{ position: "relative", flexShrink: 0 }}>
+                <Icon size={18} color={isActive ? C.primary : C.muted} strokeWidth={isActive ? 2.2 : 1.8} />
+                {badge && !isActive && (
+                  <span style={{ position: "absolute", top: -3, right: -3, width: 7, height: 7, borderRadius: "50%", background: C.danger, border: "1.5px solid white" }} />
+                )}
+              </div>
+              <span style={{ fontSize: 14, fontWeight: isActive ? 600 : 400, color: isActive ? C.primary : C.text, fontFamily: "inherit" }}>
                 {label}
               </span>
               {isActive && (
                 <motion.div
                   layoutId="sidebar-active-dot"
-                  style={{
-                    marginLeft: "auto",
-                    width: 6,
-                    height: 6,
-                    borderRadius: "50%",
-                    background: C.primary,
-                  }}
+                  style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: C.primary }}
                 />
               )}
             </motion.button>
@@ -149,40 +145,20 @@ export function DesktopSidebar({ active, onNavigate, user, onLogout }: Props) {
       {/* User section */}
       {user && (
         <div style={{ padding: "0 0 24px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", marginBottom: 4 }}>
-            <Avatar
-              initials={getInitials(user.name)}
-              size={34}
-              color="purple"
-            />
+          <button
+            onClick={() => onNavigate("profile")}
+            style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", marginBottom: 4, width: "100%", background: "none", border: "none", cursor: "pointer", borderRadius: 12, textAlign: "left" }}
+          >
+            <Avatar initials={getInitials(user.name)} size={34} color="purple" />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p
-                style={{
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: C.text,
-                  margin: 0,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
+              <p style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {user.name}
               </p>
-              <p
-                style={{
-                  fontSize: 11,
-                  color: C.muted,
-                  margin: 0,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
+              <p style={{ fontSize: 11, color: C.muted, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {user.email}
               </p>
             </div>
-          </div>
+          </button>
 
           <motion.button
             onClick={onLogout}

@@ -68,6 +68,7 @@ export function LoginScreen({ onGoToRegister, onGoBack, onForgotPassword }: Prop
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
@@ -161,7 +162,7 @@ export function LoginScreen({ onGoToRegister, onGoBack, onForgotPassword }: Prop
           }}
         />
         <p style={{ fontSize: 11, fontWeight: 600, color: C.primary, margin: "6px 0 0", letterSpacing: "0.13em" }}>
-          BANKING. SMARTER.
+          GOALS. TOGETHER.
         </p>
       </motion.div>
 
@@ -257,8 +258,35 @@ export function LoginScreen({ onGoToRegister, onGoBack, onForgotPassword }: Prop
           {fieldErrors.password && <p style={fieldError}>{fieldErrors.password}</p>}
         </div>
 
-        {/* Forgot password — right-aligned */}
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 26 }}>
+        {/* Remember me + Forgot password */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 26, marginTop: 12 }}>
+          <label
+            style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", userSelect: "none" }}
+          >
+            <div
+              onClick={() => setRememberMe((v) => !v)}
+              style={{
+                width: 18,
+                height: 18,
+                borderRadius: 5,
+                border: `2px solid ${rememberMe ? C.primary : "rgba(123,97,255,0.35)"}`,
+                background: rememberMe ? C.primary : "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+                transition: "all 0.15s",
+                cursor: "pointer",
+              }}
+            >
+              {rememberMe && (
+                <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                  <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </div>
+            <span style={{ fontSize: 13, color: C.textSecondary }}>Remember me</span>
+          </label>
           <button
             type="button"
             onClick={onForgotPassword}

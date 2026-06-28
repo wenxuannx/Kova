@@ -10,18 +10,16 @@ interface HeroProps {
 
 export function Hero({ onGetStarted, onSignIn }: HeroProps) {
   return (
-    <section style={{ background: "#F0EFFE", minHeight: 780, overflow: "hidden" }}>
+    <section style={{ background: "#F0EFFE", overflow: "hidden" }}>
       <div
         style={{
           maxWidth: 1440,
           margin: "0 auto",
-          minHeight: 780,
           display: "flex",
           alignItems: "center",
-          padding: "0 80px",
           gap: 40,
         }}
-        className="flex-col md:flex-row px-5 md:px-[80px] py-16 md:py-0"
+        className="flex-col md:flex-row px-5 md:px-[80px] py-16 md:py-[80px] md:min-h-[780px]"
       >
         {/* ── Left column ── */}
         <div
@@ -59,7 +57,7 @@ export function Hero({ onGetStarted, onSignIn }: HeroProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             style={{
-              fontSize: "clamp(36px, 4vw, 56px)",
+              fontSize: "clamp(28px, 4vw, 56px)",
               fontWeight: 800,
               color: "#1A1A2E",
               lineHeight: 1.15,
@@ -87,7 +85,7 @@ export function Hero({ onGetStarted, onSignIn }: HeroProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             style={{
-              fontSize: 18,
+              fontSize: "clamp(14px, 2vw, 18px)",
               color: "#6B7280",
               lineHeight: 1.65,
               maxWidth: 480,
@@ -103,8 +101,7 @@ export function Hero({ onGetStarted, onSignIn }: HeroProps) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-col sm:flex-row"
-            style={{ gap: 12 }}
+            style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: 12 }}
           >
             <button
               onClick={onGetStarted}
@@ -118,12 +115,13 @@ export function Hero({ onGetStarted, onSignIn }: HeroProps) {
                 fontWeight: 600,
                 border: "none",
                 borderRadius: 50,
-                height: 52,
-                padding: "0 28px",
+                height: 48,
+                padding: "0 24px",
                 cursor: "pointer",
                 fontFamily: "inherit",
                 boxShadow: "0 4px 20px rgba(123,97,255,0.38)",
                 transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                whiteSpace: "nowrap",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-1px)";
@@ -149,11 +147,12 @@ export function Hero({ onGetStarted, onSignIn }: HeroProps) {
                 fontWeight: 500,
                 border: "1.5px solid #E5E7EB",
                 borderRadius: 50,
-                height: 52,
-                padding: "0 28px",
+                height: 48,
+                padding: "0 24px",
                 cursor: "pointer",
                 fontFamily: "inherit",
                 transition: "border-color 0.15s ease",
+                whiteSpace: "nowrap",
               }}
               onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#7B61FF")}
               onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#E5E7EB")}
