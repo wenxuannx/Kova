@@ -23,7 +23,9 @@ export interface GeneratedQuest {
   estimatedSavings: number;
 }
 
+// Only used in dev — in production the key lives server-side in the Vercel function
 const ANTHROPIC_API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY as string | undefined;
+const IS_DEV = import.meta.env.DEV;
 
 function buildPrompt(input: QuestInput): string {
   return `Generate a single personalised weekly financial challenge for a Kova user.
@@ -61,18 +63,20 @@ Respond with this exact JSON structure and nothing else:
 }
 
 export async function generateQuest(input: QuestInput): Promise<GeneratedQuest> {
-  if (!ANTHROPIC_API_KEY) {
+  if (IS_DEV && !ANTHROPIC_API_KEY) {
     throw new Error("VITE_ANTHROPIC_API_KEY is not set. Add it to your .env file.");
   }
 
-  const url = import.meta.env.DEV ? "/anthropic/v1/messages" : "/api/anthropic";
+  const url = IS_DEV ? "/anthropic/v1/messages" : "/api/anthropic";
+  const headers: Record<string, string> = { "content-type": "application/json" };
+  if (IS_DEV && ANTHROPIC_API_KEY) {
+    headers["x-api-key"] = ANTHROPIC_API_KEY;
+    headers["anthropic-version"] = "2023-06-01";
+  }
+
   const res = await fetch(url, {
     method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-    },
+    headers,
     body: JSON.stringify({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 1024,
