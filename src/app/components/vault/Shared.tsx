@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { Home, Target, Users, Plus, BarChart2, Bell, Menu, X } from "lucide-react";
+import { Home, Target, Users, Plus, BarChart2, Bell, Menu, X, LogOut, UserCircle, Wallet, BarChart } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 // ─── Tokens ────────────────────────────────────────────────────────────────────
 export const C = {
