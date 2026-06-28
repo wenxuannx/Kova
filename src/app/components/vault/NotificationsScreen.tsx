@@ -82,7 +82,7 @@ export function NotificationsScreen({ onNavigate }: { onNavigate: NavigateFn }) 
   const read = notifs.filter((n) => n.read);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", position: "relative" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", position: "relative", overflow: "hidden" }}>
       <StatusBar />
       <ScrollArea style={{ padding: "0 20px 110px" }}>
         {/* Header */}
