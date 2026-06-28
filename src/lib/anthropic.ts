@@ -65,7 +65,8 @@ export async function generateQuest(input: QuestInput): Promise<GeneratedQuest> 
     throw new Error("VITE_ANTHROPIC_API_KEY is not set. Add it to your .env file.");
   }
 
-  const res = await fetch("/anthropic/v1/messages", {
+  const url = import.meta.env.DEV ? "/anthropic/v1/messages" : "/api/anthropic";
+  const res = await fetch(url, {
     method: "POST",
     headers: {
       "content-type": "application/json",
